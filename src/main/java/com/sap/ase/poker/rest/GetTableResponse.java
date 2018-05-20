@@ -1,123 +1,148 @@
 package com.sap.ase.poker.rest;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.sap.ase.poker.model.Card.Kind;
 import com.sap.ase.poker.model.Card.Suit;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class GetTableResponse {
 
-	private List<Player> players = new ArrayList<>();
-	private List<Card> playerCards = new ArrayList<>();
-	private String currentPlayer = "nobody";
-	private List<Card> communityCards = new ArrayList<>();
+    private List<Player> players = new ArrayList<>();
+    private List<Card> playerCards = new ArrayList<>();
+    private String currentPlayer = "nobody";
+    private List<Card> communityCards = new ArrayList<>();
+    private String result = "a";
 
-	public GetTableResponse(com.sap.ase.poker.model.Table table, String uiPlayerName) {
+    public GetTableResponse(com.sap.ase.poker.model.Table table, String uiPlayerName) {
+        com.sap.ase.poker.model.Player player = table.getCurrentPlayer();
+        com.sap.ase.poker.model.Player anotherPlayer = table.getAnotherPlayer();
 
-	}
+        if (player.isActive() && anotherPlayer.isActive() && player.getBet() == anotherPlayer.getBet()) {
+            // 发公牌
+            player.setInactive();
+            anotherPlayer.setInactive();
+            table.setCommunityCards();
+        }
 
-	public Player[] getPlayers() {
-		return players.toArray(new Player[0]);
-	}
+        communityCards.clear();
+        table.getCommunityCards().forEach(card -> {
+            communityCards.add(new Card(card));
+        });
 
-	public Card[] getPlayerCards() {
-		return playerCards.toArray(new Card[0]);
-	}
+        table.getPlayers().forEach(player1 -> {
+            players.add(new Player(player1));
+        });
 
-	public String getCurrentPlayer() {
-		return currentPlayer;
-	}
+        player.getCards().forEach(card -> {
+            playerCards.add(new Card(card));
+        });
 
-	public Card[] getCommunityCards() {
-		return communityCards.toArray(new Card[0]);
-	}
+        currentPlayer = player.getName();
 
-	public static class Player {
+    }
 
-		private final String name;
-		private final int bet;
-		private final int cash;
+    public Player[] getPlayers() {
+        return players.toArray(new Player[0]);
+    }
 
-		public Player(com.sap.ase.poker.model.Player player) {
-			this.name = player.getName();
-			this.bet = player.getBet();
-			this.cash = player.getCash();
-		}
+    public Card[] getPlayerCards() {
+        return playerCards.toArray(new Card[0]);
+    }
 
-		public String getName() {
-			return name;
-		}
+    public String getCurrentPlayer() {
+        return currentPlayer;
+    }
 
-		public int getBet() {
-			return bet;
-		}
+    public Card[] getCommunityCards() {
+        return communityCards.toArray(new Card[0]);
+    }
 
-		public int getCash() {
-			return cash;
-		}
-	}
+    public static class Player {
 
-	public static class Card {
+        private final String name;
+        private final int bet;
+        private final int cash;
 
-		private String suit;
-		private String kind;
+        public Player(com.sap.ase.poker.model.Player player) {
+            this.name = player.getName();
+            this.bet = player.getBet();
+            this.cash = player.getCash();
+        }
 
-		public Card(com.sap.ase.poker.model.Card card) {
-			suit = suitToString(card.getSuit());
-			kind = kindToString(card.getKind());
-		}
+        public String getName() {
+            return name;
+        }
 
-		private String suitToString(Suit suit) {
-			return suit.toString().toLowerCase();
-		}
+        public int getBet() {
+            return bet;
+        }
 
-		private String kindToString(Kind kind) {
-			switch (kind) {
-			case ACE:
-				return "ace";
-			case TWO:
-				return "2";
-			case THREE:
-				return "3";
-			case FOUR:
-				return "4";
-			case FIVE:
-				return "5";
-			case SIX:
-				return "6";
-			case SEVEN:
-				return "7";
-			case EIGHT:
-				return "8";
-			case NINE:
-				return "9";
-			case TEN:
-				return "10";
-			case JACK:
-				return "jack";
-			case QUEEN:
-				return "queen";
-			case KING:
-				return "king";
-			default:
-				throw new UnknownKindException(kind);
-			}
-		}
+        public int getCash() {
+            return cash;
+        }
+    }
 
-		public String getSuit() {
-			return suit;
-		}
+    public static class Card {
 
-		public String getKind() {
-			return kind;
-		}
+        private String suit;
+        private String kind;
 
-		@SuppressWarnings("serial")
-		private class UnknownKindException extends RuntimeException {
-			public UnknownKindException(Kind kind) {
-				super("unknown kind: " + kind);
-			}
-		}
-	}
+        public Card(com.sap.ase.poker.model.Card card) {
+            suit = suitToString(card.getSuit());
+            kind = kindToString(card.getKind());
+        }
+
+        private String suitToString(Suit suit) {
+            return suit.toString().toLowerCase();
+        }
+
+        private String kindToString(Kind kind) {
+            switch (kind) {
+                case ACE:
+                    return "ace";
+                case TWO:
+                    return "2";
+                case THREE:
+                    return "3";
+                case FOUR:
+                    return "4";
+                case FIVE:
+                    return "5";
+                case SIX:
+                    return "6";
+                case SEVEN:
+                    return "7";
+                case EIGHT:
+                    return "8";
+                case NINE:
+                    return "9";
+                case TEN:
+                    return "10";
+                case JACK:
+                    return "jack";
+                case QUEEN:
+                    return "queen";
+                case KING:
+                    return "king";
+                default:
+                    throw new UnknownKindException(kind);
+            }
+        }
+
+        public String getSuit() {
+            return suit;
+        }
+
+        public String getKind() {
+            return kind;
+        }
+
+        @SuppressWarnings("serial")
+        private class UnknownKindException extends RuntimeException {
+            public UnknownKindException(Kind kind) {
+                super("unknown kind: " + kind);
+            }
+        }
+    }
 }

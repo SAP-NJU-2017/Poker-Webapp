@@ -33,7 +33,8 @@
 		app.addPage(tableView);
 		
 		lobbyView.getController().attachEvent("startGame", function() {
-			tableView.getController().setPlayer("a");
+			tableView.getController().setPlayer("mm");
+			tableView.getController().setPlayer("gg");
 			tableView.getController().refreshData();
 			app.to(tableView.getId());              
 		});
